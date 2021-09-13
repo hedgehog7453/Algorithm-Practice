@@ -1,4 +1,4 @@
-# dum-dum-algorithms
+# Algorithm Practice
 🐟今天刷算法题了吗
 
 
