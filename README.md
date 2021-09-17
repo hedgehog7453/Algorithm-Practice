@@ -1,4 +1,4 @@
-# Algorithm Practice
+# Misc
 🐟今天刷算法题了吗
 
 
