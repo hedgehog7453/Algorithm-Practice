@@ -94,12 +94,15 @@ run()方法是不需要用户来调用的。当通过start()方法启动一个�
   - 并非是真的要线程挂起0毫秒，意义在于这次调用Thread.Sleep(0)的当前线程确实的被冻结了一下，让其他线程有机会优先执行。Thread.Sleep(0) 是你的线程暂时放弃cpu，也就是释放一些未用的时间片给其他线程或进程使用，就相当于一个让位动作。
   
 **`join()`** 当前线程调用其他线程的join方法，会阻塞当前线程，直到其他线程执行完毕，才会进入就绪状态。
+- 可以使用 join() 方法让一个线程强制运行，线程强制运行期间，其他线程无法运行，必须等待此线程完成之后才可以继续执行。
 - join方法被Synchronized关键字所修饰，所以如果有两个线程同时调用另外一个线程的join方法，其中一个线必须等待（进入阻塞状态），在得到锁之后才会执行join方法。
 - join方法是通过wait方法（Object提供的方法）实现的。当 millis == 0 时，会进入 while(isAlive()) 循环，并且只要子线程是活的，宿主线程就不停的等待。join方法同样会让线程交出CPU执行权限；join方法同样会让线程释放对一个对象持有的锁；
 
 **`yield()`** 让当前线程放弃获取的CPU时间片，但不释放锁资源，由运行状态变为就绪状态，让OS再次选择线程。
 - 作用：让相同优先级的线程轮流执行，但并不保证一定会轮流执行。实际中无法保证yield()达到让步目的，因为让步的线程还有可能被线程调度程序再次选中。
 - Thread.yield()不会导致阻塞，而是让线程重回就绪状态，与sleep()类似，只是不能由用户指定暂停多长时间。
+
+**`interrupt()`** 当一个线程运行时，另外一个线程可以直接通过interrupt()方法中断其运行状态。
 
 总结：
 - 释放锁：`wait()`, `join()`
@@ -108,7 +111,11 @@ run()方法是不需要用户来调用的。当通过start()方法启动一个�
 ####Callable
 TODO
 ####线程池
-TODO
+- **加快请求响应（响应时间优先）**：不设置队列去缓冲并发的请求，而是适当调高corePoolSize和maxPoolSize去尽可能的创造线程来执行任务。
+- **加快处理大任务（吞吐量优先）**：设置队列来缓冲并发任务，并且设置合理的corePoolSize和maxPoolSize参数，这个时候如果设置了太大的corePoolSize和maxPoolSize可能还会因为线程上下文频繁切换降低任务处理速度，从而导致吞吐量降低。
+Executor、Executors、ExecutorService、ThreadPoolExecutor、FutureTask、Callable、Runnable
+
+
 ##并发问题
 并发问题的共同特征：多个线程/进程之间共享一些资源。由于无法消除资源共享的约束，防止并发问题就变成了**资源共享的协调**问题。根据这个思路，如果可以确保程序中**关键部分代码的独占性**，就可以防止程序进入不一致的状态。
 
@@ -147,5 +154,9 @@ public void countDown() { };
 - CountDownLatch 参与的线程的职责是不一样的，有的在倒计时，有的在等待倒计时结束。CyclicBarrier 参与的线程职责是一样的
 
 https://www.cnblogs.com/java1024/archive/2019/11/28/11950129.html
+
 https://blog.csdn.net/absolute_chen/article/details/91891933
+
 https://blog.csdn.net/qiaoquan3/article/details/56281092/
+
+https://blog.csdn.net/fanrenxiang/article/details/79855992
