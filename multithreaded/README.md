@@ -1,11 +1,11 @@
-##进程和线程
-####进程
+# 进程和线程
+### 进程
 - 进程是程序的一次动态执行过程，它需要经历从代码加载，代码执行到执行完毕的一个完整的过程，这个过程也是进程本身从产生，发展到最终消亡的过程。
 - 多进程操作系统能同时达运行多个进程（程序），由于 CPU 具备分时机制，所以每个进程都能循环获得自己的CPU 时间片。由于 CPU 执行速度非常快，使得所有程序好像是在同时运行一样。
-####线程
+### 线程
 - 线程是比进程更小的执行单位，线程是进程的基础之上进行进一步的划分。
 - 多线程是实现并发机制的一种有效手段。所谓多线程是指一个进程在执行过程中可以产生多个更小的程序单元，这些更小的单元称为线程，这些线程可以同时存在，同时运行，一个进程可能包含多个同时执行的线程。进程与线程的区别如图所示： 
-####线程的五种状态
+### 线程的五种状态
 - **创建状态（New）**
   - 在程序中用构造方法创建了一个线程对象后，新的线程对象便处于新建状态。新建一个线程对象可采用 Thread 类的构造方法来实现，例如 `Thread thread = new Thread()`
   - 此时它已经有了相应的内存空间和其他资源，但还处于不可运行状态。
@@ -24,8 +24,8 @@
   - 线程调用 `stop()` 方法时或 `run()` 方法执行结束后，即处于死亡状态。
   - 处于死亡状态的线程不具有继续运行的能力。
 
-##Java线程
-####Java线程的六种状态
+# Java线程
+### Java线程的六种状态
 - **初始（NEW）**
   - 新创建了一个线程对象，但还没有调用start()方法。
 - **运行（RUNNABLE）**
@@ -41,12 +41,12 @@
 - **终止（TERMINATED）**
   - 表示该线程已经执行完毕。
 
-####实现方式
+### 实现方式
 1. 继承 Thread 类
 1. 创建一个类去实现 Runnable 接口，然后将这个类以参数的形式传递给 Thread 类 
 1. 实现 Callable 接口
 1. 线程池
-####Thread和Runnable
+### Thread和Runnable
 Thread 类的定义：
 ```
 public class Thread extends Object implements Runnable { ... }
@@ -71,7 +71,7 @@ run()方法是不需要用户来调用的。当通过start()方法启动一个�
 - 直接重写：直接继承Thread类并重写run()方法；
 - 间接重写：通过Thread构造函数传入Runnable对象（注意，实际上重写的是Runnable对象的run()方法）。
 
-####为什么实现 Runnable 优于继承 Thread 类
+### 为什么实现 Runnable 优于继承 Thread 类
 1. 避免单继承的局限，一个类可以同时实现多个接口
 1. 适合资源的共享
     1. 如果每个线程执行的代码相同，可以使用同一个 Runnable 对象，这个 Runnable 对象中有那个共享数据
@@ -82,7 +82,7 @@ run()方法是不需要用户来调用的。当通过start()方法启动一个�
         1. 总之，要同步互斥的几段代码最好是分别放在几个独立的方法中，这些方法再放在同一个类中，这样比较容易实现它们之间的同步互斥和通信
     1. 极端且简单的方式，即在任意一个类中定义一个static的变量，这将被所有线程共享。
 
-####Thread 类常见方法
+### Thread 类常见方法
 **`start()`** 启动一个线程，当调用该方法后，相应线程就会进入就绪状态，该线程中的run()方法会在某个时机被调用。
 
 **`sleep()`** 让线程进入阻塞状态。“在未来的多少毫秒内我不参与CPU竞争”。
@@ -108,15 +108,89 @@ run()方法是不需要用户来调用的。当通过start()方法启动一个�
 - 释放锁：`wait()`, `join()`
 - 不释放锁：`sleep()`, `yield()`
 
-####Callable
-TODO
-####线程池
+### Callable
+### 线程池（Executor, Executors, ExecutorService, ThreadPoolExecutor）
 - **加快请求响应（响应时间优先）**：不设置队列去缓冲并发的请求，而是适当调高corePoolSize和maxPoolSize去尽可能的创造线程来执行任务。
 - **加快处理大任务（吞吐量优先）**：设置队列来缓冲并发任务，并且设置合理的corePoolSize和maxPoolSize参数，这个时候如果设置了太大的corePoolSize和maxPoolSize可能还会因为线程上下文频繁切换降低任务处理速度，从而导致吞吐量降低。
-Executor、Executors、ExecutorService、ThreadPoolExecutor、FutureTask、Callable、Runnable
+
+线程池可以自动创建也可以手动创建
+- 自动创建体现在Executors工具类中，常见的可以创建newFixedThreadPool、newCachedThreadPool、newSingleThreadExecutor、newScheduledThreadPool
+- 手动创建体现在可以灵活设置线程池的各个参数
+
+#### 线程池中的线程创建流程图：
+![avatar](./img/thread-creation.png)
+1. 判断核心线程池里的线程是否都在执行任务
+   1. 如果不是，则创建一个新的工作线程来执行任务
+   1. 如果核心线程池里的线程都在执行任务，则执行第二步。
+1. 判断工作队列是否已经满
+   1. 如果工作队列没有满，则将新提交的任务存储在这个工作队列里进行等待
+   1. 如果工作队列满了，则执行第三步
+1. 判断线程池的线程是否都处于工作状态
+   1. 如果没有，则创建一个新的工作线程来执行任务
+   1. 如果已经满了，则交给饱和策略来处理这个任务
+
+#### 线程池参数
+```
+public ThreadPoolExecutor(int corePoolSize,
+                          int maximumPoolSize,
+                          long keepAliveTime,
+                          TimeUnit unit,
+                          BlockingQueue<Runnable> workQueue,
+                          ThreadFactory threadFactory,         // Executors.defaultThreadFactory()
+                          RejectedExecutionHandler handler)    // defaultHandler
+{...}
+```
+- **corePoolSize**：核心线程数，也是线程池中常驻的线程数，线程池初始化时默认是没有线程的，当任务来临时才开始创建线程去执行任务
+- **maximumPoolSize**：最大线程数，在核心线程数的基础上可能会额外增加一些非核心线程，需要注意的是只有当workQueue队列填满时才会创建多于corePoolSize的线程(线程池总线程数不超过maxPoolSize)
+- **keepAliveTime**：非核心线程的空闲时间超过keepAliveTime就会被自动终止回收掉，注意当corePoolSize=maxPoolSize时，keepAliveTime参数也就不起作用了(因为不存在非核心线程)；
+- **unit**：keepAliveTime的时间单位
+- **workQueue**：用于保存任务的队列，可以为无界、有界、同步移交三种队列类型之一，当池子里的工作线程数大于corePoolSize时，这时新进来的任务会被放到队列中
+  - **SynchronousQueue(同步移交队列)**：队列不作为任务的缓冲方式，可以简单理解为队列长度为零
+  - **LinkedBlockingQueue(无界队列)**：队列长度不受限制，当请求越来越多时(任务处理速度跟不上任务提交速度造成请求堆积)可能导致内存占用过多或OOM
+  - **ArrayBlockingQueue(有界队列)**：队列长度受限，当队列满了就需要创建多余的线程来执行任务
+- **threadFactory**：创建线程的工厂类，默认使用Executors.defaultThreadFactory()，也可以使用guava库的ThreadFactoryBuilder来创建
+- **handler**：线程池无法继续接收任务(队列已满且线程数达到maximumPoolSize)时的饱和策略
+  - **AbortPolicy**：中断抛出异常
+  - **DiscardPolicy**：默默丢弃任务，不进行任何通知
+  - **DiscardOldestPolicy**：丢弃掉在队列中存在时间最久的任务
+  - **CallerRunsPolicy**：让提交任务的线程去执行任务(对比前三种比较友好一丢丢)
+
+#### 自动创建线程池
+自动创建线程池的几种方式都封装在Executors工具类中：
+- **`newFixedThreadPool`**：
+  - `new ThreadPoolExecutor(var0, var0, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue())`，
+  - 设置了corePoolSize=maxPoolSize，keepAliveTime=0(此时该参数没作用)，无界队列，任务可以无限放入，当请求过多时(任务处理速度跟不上任务提交速度造成请求堆积)可能导致占用过多内存或直接导致OOM异常
+- **`newSingleThreadExecutor`**：
+  - `new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue(), var0)`
+  - 基本同newFixedThreadPool，但是将线程数设置为了1，单线程，弊端和newFixedThreadPool一致
+- **`newCachedThreadPool`**：
+  - `new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue())`
+  - corePoolSize=0，maxPoolSize为很大的数，同步移交队列，也就是说不维护常驻线程(核心线程)，每次来请求直接创建新线程来处理任务，也不使用队列缓冲，会自动回收多余线程，由于将maxPoolSize设置成Integer.MAX_VALUE，当请求很多时就可能创建过多的线程，导致资源耗尽OOM
+- **`newScheduledThreadPool`**：
+  - `new ThreadPoolExecutor(var1, Integer.MAX_VALUE, 0L, TimeUnit.NANOSECONDS, new ScheduledThreadPoolExecutor.DelayedWorkQueue())`
+  - 支持定时周期性执行，注意一下使用的是延迟队列，弊端同newCachedThreadPool一致
+
+#### 关闭线程池
+- **`shutdownNow()`**：立即关闭线程池(暴力)，正在执行中的及队列中的任务会被中断，同时该方法会返回被中断的队列中的任务列表
+- **`shutdown()`**：平滑关闭线程池，正在执行中的及队列中的任务能执行完成，后续进来的任务会被执行拒绝策略
+- **`isTerminated()`**：当正在执行的任务及对列中的任务全部都执行（清空）完就会返回true
+
+#### Runnable和Callable
+Runnable和Callable都可以理解为任务，里面封装任务的具体逻辑，用于提交给线程池执行。区别在于Runnable任务执行没有返回值，且Runnable任务逻辑中不能通过throws抛出受检异常(但是可以try catch)，而Callable可以获取到任务的执行结果返回值且抛出受检异常。
+
+#### Future和FutureTask
+Future接口用来表示执行异步任务的结果存储器，当一个任务的执行时间过长就可以采用这种方式：把任务提交给子线程去处理，主线程不用同步等待，当向线程池提交了一个Callable或Runnable任务时就会返回Future，用Future可以获取任务执行的返回结果。
+
+Future的主要方法包括：
+
+- **`get()`**：返回任务的执行结果，若任务还未执行完，则会一直阻塞直到完成为止。如果执行过程中发生异常，则抛出异常，但是主线程是感知不到并且不受影响的，除非调用get()方法进行获取结果则会抛出ExecutionException异常
+- **`get(long timeout, TimeUnit unit)`**：在指定时间内返回任务的执行结果，超时未返回会抛出TimeoutException，这个时候需要显式的取消任务
+- **`cancel(boolean mayInterruptIfRunning)`**：取消任务，mayInterruptIfRunning表示如果任务正在运行中是否强制中断
+- **`isDone()`**：判断任务是否执行完毕。执行完毕不代表任务一定成功执行，它仅仅表示一种状态说后面任务不会再执行了
+- **`isCancelled()`**：判断任务是否被取消
 
 
-##并发问题
+# 并发问题
 并发问题的共同特征：多个线程/进程之间共享一些资源。由于无法消除资源共享的约束，防止并发问题就变成了**资源共享的协调**问题。根据这个思路，如果可以确保程序中**关键部分代码的独占性**，就可以防止程序进入不一致的状态。
 
 多线程如果应用不当可能会引发的漏洞：
@@ -126,15 +200,15 @@ Executor、Executors、ExecutorService、ThreadPoolExecutor、FutureTask、Calla
 
 为了防止出现并发竞争状态，需要一种具有两种功能的机制：1）关键部分的访问控制；2）通知阻塞线程。
 
-###Java 多线程同步
+## Java 多线程同步
 TODO
-####wait(), notify(), notifyAll()
-####原子操作
-####volatile
-####synchronized
-####ReentrantLock
-####Semaphore
-####CountDownLatch
+### wait(), notify(), notifyAll()
+### 原子操作
+### volatile
+### synchronized
+### ReentrantLock
+### Semaphore
+### CountDownLatch
 使一个线程等待其他线程各自执行完毕后再执行。
 
 通过一个计数器来实现，计数器的初始值是线程的数量。每当一个线程执行完毕后，计数器的值就-1，当计数器的值为0时，表示所有线程都执行完毕，然后在闭锁上等待的线程就可以恢复工作了
@@ -149,7 +223,7 @@ public boolean await(long timeout, TimeUnit unit) throws InterruptedException { 
 // 将count值减1
 public void countDown() { };  
 ```
-#####CyclicBarrier 与 CountDownLatch 区别
+### CyclicBarrier 与 CountDownLatch 区别
 - CountDownLatch 是一次性的，CyclicBarrier 是可循环利用的
 - CountDownLatch 参与的线程的职责是不一样的，有的在倒计时，有的在等待倒计时结束。CyclicBarrier 参与的线程职责是一样的
 
