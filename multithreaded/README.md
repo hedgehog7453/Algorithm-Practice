@@ -93,6 +93,7 @@ run()方法是不需要用户来调用的。当通过start()方法启动一个�
   - 释放cpu时间，让线程马上重新回到就绪队列而非等待队列，sleep(0)释放当前线程所剩余的时间片（如果有剩余的话），这样可以让操作系统切换其他线程来执行，提升效率。
   - 并非是真的要线程挂起0毫秒，意义在于这次调用Thread.Sleep(0)的当前线程确实的被冻结了一下，让其他线程有机会优先执行。Thread.Sleep(0) 是你的线程暂时放弃cpu，也就是释放一些未用的时间片给其他线程或进程使用，就相当于一个让位动作。
   
+
 **`join()`** 当前线程调用其他线程的join方法，会阻塞当前线程，直到其他线程执行完毕，才会进入就绪状态。
 - 可以使用 join() 方法让一个线程强制运行，线程强制运行期间，其他线程无法运行，必须等待此线程完成之后才可以继续执行。
 - join方法被Synchronized关键字所修饰，所以如果有两个线程同时调用另外一个线程的join方法，其中一个线必须等待（进入阻塞状态），在得到锁之后才会执行join方法。
@@ -226,6 +227,13 @@ public void countDown() { };
 ### CyclicBarrier 与 CountDownLatch 区别
 - CountDownLatch 是一次性的，CyclicBarrier 是可循环利用的
 - CountDownLatch 参与的线程的职责是不一样的，有的在倒计时，有的在等待倒计时结束。CyclicBarrier 参与的线程职责是一样的
+
+# Producer Consumer
+https://www.cnblogs.com/dennisit/archive/2013/02/25/2931573.html
+
+
+
+References:
 
 https://www.cnblogs.com/java1024/archive/2019/11/28/11950129.html
 
